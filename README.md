@@ -44,7 +44,9 @@ Out of 44 films directed by Jean-Luc Godard and selected with the filter (type=m
 
 ## query_duo.sql
 
-Some film directors do have their favorites, but if we ignore the outliers, the appearances are also not as big as one would expect:
+"Now do the same but instead of h-index show the maximal number of films with the same actor per director, also show that actor and total film count by director as in the script above. Add the second best entry if the director and actor is the same."
+
+If we ignore the outliers, the appearances of the favorites are also not as big as one would expect:
 
 ```text
 23     Woody Allen                           Woody Allen                      27              51  
@@ -67,9 +69,9 @@ Further analysis shows that no same actress has ever played more than twice in Ã
 
 * AI can do all sorts of things with the SQL like rating trend analysis, but I do not find this interesting.
 
-* A serious drawback of [imdb-sqlite](https://github.com/jojje/imdb-sqlite) is that one can only study things globally, there is no country data.
+* It is not clear if [imdb-sqlite](https://github.com/jojje/imdb-sqlite) is sufficient for per country analysis.
 
 * One challenge is to come up with various filters and think of the criteria of a good film other than mass voting. For instance, a small total number of films with relatively high h-index, e.g. Hal Hartley's 12 and 4 resp., might indicate some unusual quality.
 
-* It is not clear how to reveal little-known outstanding films such as Vincent Gallo's Buffalo '66 (1998).
+* How to reveal little-known outstanding films such as Vincent Gallo's Buffalo '66 (1998)?!
 
