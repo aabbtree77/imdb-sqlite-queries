@@ -4,7 +4,9 @@
 
 ## Introduction
 
-[imdb-sqlite](https://github.com/jojje/imdb-sqlite) allows to download the public imdb data set and store it as a single SQLite file, say imdb.db, which will be around 19GB. It will lack movie budgets, salaries, and geographic locations, but otherwise presents insane amount of information. After acquiring such a file, extract the schema:
+[imdb-sqlite](https://github.com/jojje/imdb-sqlite) allows to download the public imdb data set and store it as a single SQLite file. 
+
+Name it "imdb.db" (19GB), install sqlite3, and extract the schema:
 
 ```bash
 sudo apt install sqlite3
@@ -13,23 +15,25 @@ sqlite3 --version
 sqlite3 imdb.sqlite .schema > imdb_schema.sql
 ```
 
-One can then give the schema to an AI to build various SQL queries which won't be available on [imdb.com](https://www.imdb.com/). The query may take more than 5 minutes to execute, may produce 80MB file with a million rows. Such queries are not viable online, but they are manageable locally, and nowadays even Ubuntu's gedit with ctrl+f search will allow one to navigate such files.
+One can then give the schema to an AI to build advanced queries. 
 
-Below I present two such queries (SQL scripts) which I found interesting.
+They won't be available on [imdb.com](https://www.imdb.com/). The query may take more than 5 minutes to execute, may produce 80MB file with a million rows. Such queries are too costly for web APIs, but they work well locally.
+
+Below I present two such queries (SQL scripts).
 
 ## query_h.sql
 
-"Show SQL query which ranks directors via "h-index" where instead of author numbers and publications we get actor numbers and films with the same actors. Show row numbers too. Restrict to solid films such as non-adult, no anime, no cartoons. Add the total film counter column used for each director."
+"Show SQL query which ranks directors via "h-index" where instead of h publications and h citations of them we get the same h actors in h films of a given director. Show row numbers too. Restrict to solid films such as non-adult, no anime, no cartoons. Add the total film counter column used for each director."
 
 "This does not feel right, I get James Bobin with h index 6 and 4 films. Remember, the h index is the maximal number of h films produced by the same director with the same actor set of size h."
 
-After a few more iterations ChatGPT produces an amazing script.
+After a few more iterations ChatGPT produces the desired result.
 
 ```bash
 sqlite3 imdb.db < query_h.sql > top_h.txt
 ```
 
-Note that despite a few outliers at the top, the "h-sets" turn out to be unexpectedly tiny:
+Neglecting the outliers at the top, these "h-sets" turn out to be unexpectedly tiny:
 
 ```text
 1098  Woody Allen                   3                       51  
@@ -40,13 +44,13 @@ Note that despite a few outliers at the top, the "h-sets" turn out to be unexpec
 ...
 ```
 
-Out of 44 films directed by Jean-Luc Godard and selected with the filter (type=movies, duration>60min), only 3 films feature the same trio of actors. Some of these directors may look like indie makers, but their crews are not theatrical troupes at all. The teams have no permanence, they vary from film to film wildly. 
+Out of 44 films directed by Jean-Luc Godard and selected with the filter (type=movies, duration>60min), only 3 films feature the same trio of actors. The film crews are not theatrical troupes at all. They have no permanence.
 
 ## query_duo.sql
 
-"Now do the same but instead of h-index show the maximal number of films with the same actor per director, also show that actor and total film count by director as in the script above. Add the second best entry if the director and actor is the same."
+"Now do the same but instead of h-index show the maximal number of films with the same actor per director, also show that actor and total film count by director as in the script above. Add the second best entry if the director and actor are the same."
 
-If we ignore the outliers, the appearances of the favorites are also not as big as one would expect:
+Ignoring the outliers, the appearances of the favorites are also not as big as one would have expected:
 
 ```text
 23     Woody Allen                           Woody Allen                      27              51  
@@ -59,19 +63,17 @@ If we ignore the outliers, the appearances of the favorites are also not as big 
 ...
 ```
 
-The script includes the second best runner when a director features himself as an actor.
-
-Further analysis shows that no same actress has ever played more than twice in Éric Rohmer's films.
+Many famous tandems turn out to be of very mild symbolic value if exist at all. The superstar hyper-productive directors largely work as lonesome wolves. Further analysis reveals that no same actress has ever played more than twice in Éric Rohmer's films!
 
 ## Notes
 
-* Comment out `LIMIT` lines in the both files to get a complete output. The limit is here only not to upload 100MB files on github by accident.
+* Comment out `LIMIT` lines in the both files to get a complete output.
 
-* AI can do all sorts of things with the SQL like rating trend analysis, but I do not find this interesting.
+* AI can do rating trend analysis, but I do not find this interesting.
 
-* It is not clear if [imdb-sqlite](https://github.com/jojje/imdb-sqlite) is sufficient for per country analysis.
+* There is no data for per country analysis.
 
-* One challenge is to come up with various filters and think of the criteria of a good film other than mass voting. For instance, a small total number of films with relatively high h-index, e.g. Hal Hartley's 12 and 4 resp., might indicate some unusual quality.
+* A small total number of films with relatively high h-index, e.g. Hal Hartley's 12 and 4 resp., might indicate unusual quality.
 
 * How to reveal little-known outstanding films such as Vincent Gallo's Buffalo '66 (1998)?!
 
